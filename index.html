@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WEB POSTER</title>
+  <link rel="icon" href="images/icon2.png" type="image/x-icon">
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+</head>
+<body>
+  <script>
+    let arrow;
+    let numSquares = 10;
+    let spacing = 160;
+    let startX = -spacing * (numSquares - 1) / 2;
+    let startY = -spacing * (numSquares - 1) / 2;
+    let cubes = [];
+
+    let pointLightX = 500;
+    let pointLightY = 500;
+    let pointLightZ = 500;
+
+    let spherePos;
+
+    function setup() {
+      createCanvas(windowWidth, windowHeight, WEBGL);
+      arrow = createVector(0, 0, 0);
+      spherePos = createVector(0, 0, 0);
+
+      frameRate(60);
+
+      // Create cubes in a grid
+      for (let i = 0; i < numSquares; i++) {
+        for (let j = 0; j < numSquares; j++) {
+          let x = startX + i * spacing;
+          let y = startY + j * spacing;
+          cubes.push({ x, y, z: 0 });
+        }
+      }
+    }
+
+    function draw() {
+      background(250, 241, 240);
+
+      // Set up a fixed camera
+      camera(0, 0, (height / 2) / tan(PI / 6), 0, 0, 0, 0, 1, 0);
+
+      // Update point light position based on mouse position
+      pointLightX = map(mouseX, 0, width, -width / 2, width / 2);
+      pointLightY = map(mouseY, 0, height, -height / 2, height / 2);
+
+      // Add ambient light
+      ambientLight(255);
+
+      // Rotate and display each cube
+      for (let cube of cubes) {
+        let angleX = atan2(arrow.z - cube.z, dist(cube.x, cube.y, cube.z, arrow.x, arrow.y, arrow.z));
+        let angleY = atan2(arrow.x - cube.x, arrow.y - cube.y);
+        let angleZ = atan2(arrow.y - cube.y, arrow.x - cube.x);
+        push();
+        translate(cube.x, cube.y, cube.z);
+        rotateX(angleX);
+        rotateY(angleY);
+        rotateZ(angleZ);
+
+        let locX = mouseX - width / 2;
+        let locY = mouseY - height / 2;
+
+        ambientLight(60, 60, 60);
+        pointLight(60, 60, 60, locX, locY, 60);
+        specularMaterial(250);
+        shininess(3);
+        fill(224,116,110); 
+        stroke(255,175,167);
+        box(90);
+        pop();
+      }
+
+      // Update sphere position
+      spherePos.set(mouseX - width / 2, mouseY - height / 2, 0);
+
+      // Draw the sphere
+      noCursor();
+      push();
+      translate(spherePos.x, spherePos.y, spherePos.z);
+      fill(255,175,167);
+      noStroke();
+      sphere(17);
+      pop();
+    }
+
+    function mouseMoved() {
+      arrow.set(mouseX - width / 2, mouseY - height / 2, 0);
+    }
+  </script>
+</body>
+</html>
